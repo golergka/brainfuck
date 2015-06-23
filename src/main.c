@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -16,11 +17,29 @@ static void reset()
 	data_pointer = &data[0];
 }
 
-static void eval(char* input)
+static void jump(char **input, int direction)
 {
-	while(*input != EOF)
+	int brackets = direction;
+	while (brackets != 0)
 	{
-		switch(*input)
+		*input += direction;
+		if (**input == '[')
+		{
+			brackets++;
+		}
+		else if (**input == ']')
+		{
+			brackets--;
+		}
+	}
+}
+
+static void eval(char* input, int length)
+{
+	char *input_pointer = input;
+	while(input_pointer < (input + length))
+	{
+		switch(*input_pointer)
 		{
 			// Increment data pointer
 			case '>':
@@ -56,10 +75,7 @@ static void eval(char* input)
 			case '[':
 				if (*data_pointer == 0)
 				{
-					while(*input != ']')
-					{
-						input++;
-					}
+					jump(&input_pointer, 1);
 				}
 				break;
 
@@ -67,10 +83,7 @@ static void eval(char* input)
 			case ']':
 				if (*data_pointer != 0)
 				{
-					while(*input != '[')
-					{
-						input--;
-					}
+					jump(&input_pointer, -1);
 				}
 				break;
 
@@ -78,20 +91,37 @@ static void eval(char* input)
 			default:
 				break;
 		}
-		input++;
+		input_pointer++;
 	}
 }
 
 int main(int argc, char** argv)
 {
+	FILE* input_file;
+	char* input_program;
+	long input_length;
+
 	if (argc < 2)
 	{
-		printf("Detected no input");
+		printf("Please, input the filename as first parameter.");
 	}
 	else
 	{
 		reset();
-		eval(argv[1]);
+		input_file = fopen(argv[1], "r");
+		if (input_file)
+		{
+			fseek(input_file, 0, SEEK_END);
+			input_length = ftell(input_file);
+			fseek(input_file, 0, SEEK_SET);
+			input_program = malloc(input_length);
+			if (input_program)
+			{
+				fread(input_program, 1, input_length, input_file);
+				eval(input_program, input_length);
+			}
+			fclose(input_file);
+		}
 	}
 	return 0;
 }
