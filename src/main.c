@@ -1,18 +1,84 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MEMORY_SIZE 30000
+#define DATA_SIZE 30000
 
-static char memory[MEMORY_SIZE];
+static char  data[DATA_SIZE];
+static char* data_pointer;
+
+static void reset()
+{
+	int i;
+	for(i = 0; i < DATA_SIZE; i++)
+	{
+		data[i] = 0;
+	}
+	data_pointer = &data[0];
+}
 
 static void eval(char* input)
 {
-	int i;
-	char* instruction_pointer;
-	for(i = 0; i < strlen(input); i++)
+	while(*input != EOF)
 	{
-		instruction_pointer = &input[i];
-		printf("%c", *instruction_pointer);
+		switch(*input)
+		{
+			// Increment data pointer
+			case '>':
+				data_pointer++;
+				break;
+
+			// Decrement data pointer
+			case '<':
+				data_pointer--;
+				break;
+
+			// Increment data at pointer
+			case '+':
+				(*data_pointer)++;
+				break;
+
+			// Decrement data at pointer
+			case '-':
+				(*data_pointer)--;
+				break;
+
+			// Output data at pointer
+			case '.':
+				printf("%c", (*data_pointer));
+				break;
+
+			// Input data at pointer
+			case ',':
+				scanf(" %c", data_pointer);
+				break;
+
+			// Jump forward
+			case '[':
+				if (*data_pointer == 0)
+				{
+					while(*input != ']')
+					{
+						input++;
+					}
+				}
+				break;
+
+			// Jump backwards
+			case ']':
+				if (*data_pointer != 0)
+				{
+					while(*input != '[')
+					{
+						input--;
+					}
+				}
+				break;
+
+			// Ignore unknown characters
+			default:
+				break;
+		}
+		input++;
 	}
 }
 
@@ -24,6 +90,7 @@ int main(int argc, char** argv)
 	}
 	else
 	{
+		reset();
 		eval(argv[1]);
 	}
 	return 0;
