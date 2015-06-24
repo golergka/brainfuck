@@ -30,6 +30,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(@D)
 	$(C) $(CFLAGS) -c -o $@ $<
 
+test: all
+	./run_tests.sh
+
 clean:
 	@echo "Cleaning"
 	$(RM) $(OBJ_DIR)
