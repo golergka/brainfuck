@@ -68,7 +68,10 @@ static void eval(char* input, int length)
 
 			// Input data at pointer
 			case ',':
-				scanf(" %c", data_pointer);
+				if(scanf("%c", data_pointer) < 1)
+				{
+					*data_pointer = 0;
+				}
 				break;
 
 			// Jump forward
