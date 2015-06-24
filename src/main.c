@@ -114,21 +114,33 @@ int read_file(FILE* file, char** program, long* length)
 	}
 }
 
+static char* file_name;
+
+static int parse_arguments(int argc, char** argv)
+{
+	if (argc < 2)
+	{
+		printf("Please, input the filename as first parameter.");
+		return 1;
+	}
+	else
+	{
+		file_name = argv[1];
+		return 0;
+	}
+}
+
 int main(int argc, char** argv)
 {
 	FILE* input_file;
 	char* input_program;
 	long input_length;
-	int error_code;
+	int error_code = 0;
 
-	if (argc < 2)
-	{
-		printf("Please, input the filename as first parameter.");
-	}
-	else
+	if ((error_code = parse_arguments(argc, argv)) == 0)
 	{
 		reset();
-		input_file = fopen(argv[1], "r");
+		input_file = fopen(file_name, "r");
 		if (input_file
 		&& !(error_code = read_file(input_file, &input_program, &input_length) == 0))
 		{
@@ -140,5 +152,6 @@ int main(int argc, char** argv)
 		}
 		fclose(input_file);
 	}
-	return 0;
+
+	return error_code;
 }
