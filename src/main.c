@@ -98,11 +98,28 @@ static void eval(char* input, int length)
 	}
 }
 
+int read_file(FILE* file, char** program, long* length)
+{
+	fseek(file, 0, SEEK_END);
+	*length = ftell(file);
+	fseek(file, 0, SEEK_SET);
+	*program = malloc(*length);
+	if (*program)
+	{
+		return fread(*program, 1, *length, file);
+	}
+	else
+	{
+		return 1;
+	}
+}
+
 int main(int argc, char** argv)
 {
 	FILE* input_file;
 	char* input_program;
 	long input_length;
+	int error_code;
 
 	if (argc < 2)
 	{
@@ -112,19 +129,16 @@ int main(int argc, char** argv)
 	{
 		reset();
 		input_file = fopen(argv[1], "r");
-		if (input_file)
+		if (input_file
+		&& !(error_code = read_file(input_file, &input_program, &input_length) == 0))
 		{
-			fseek(input_file, 0, SEEK_END);
-			input_length = ftell(input_file);
-			fseek(input_file, 0, SEEK_SET);
-			input_program = malloc(input_length);
-			if (input_program)
-			{
-				fread(input_program, 1, input_length, input_file);
-				eval(input_program, input_length);
-			}
-			fclose(input_file);
+			eval(input_program, input_length);
 		}
+		else
+		{
+			printf("Couldn't read file! %i", error_code);
+		}
+		fclose(input_file);
 	}
 	return 0;
 }
